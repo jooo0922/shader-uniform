@@ -2,18 +2,10 @@
 precision mediump float;
 #endif
 
-uniform vec2 u_resolution;
-uniform vec2 u_mouse;
 uniform float u_time;
 
 void main() {
-  vec2 st = gl_FragCoord.xy / u_resolution.xy;
-  st.x *= u_resolution.x / u_resolution.y;
-
-  vec3 color = vec3(0.);
-  color = vec3(st.x, st.y, abs(sin(u_time)));
-
-  gl_FragColor = vec4(color, 1.0);
+  gl_FragColor = vec4(abs(sin(u_time)), 0.0, 0.0, 1.0);
 }
 
 /*
@@ -80,4 +72,38 @@ void main() {
   GLSL(GPU)은 이런 CPU(WebGL 에서는 js)의 복잡한 계산을 직접 할 수 있는 능력이 좀 부족하기 때문에
   그래픽 연산을 제외한 나머지 연산을 CPU가 처리를 해주고,
   그 결과값을 GLSL에 전송해줌으로써, GLSL이 소기의 목적을 달성하도록 도와줘야 함.
+*/
+
+/*
+  세 번째 커밋 예제에 대한 설명
+
+
+  gl_FragColor = vec4(abs(sin(u_time)), 0.0, 0.0, 1.0);
+
+  gl_FragColor 내장 변수에 넣어주는 vec4 타입의 값에 있는 r value 자리에
+  뭔가 조잡한 함수들이 사용되서 리턴값이 들어가는 걸 알 수 있다.
+
+  근데 화면에서 빨간색과 검은색 사이를 왔다갔다 바뀌고 있는 것을 보면, 
+  abs(sin(u_time)) 이 값이 0.0(검은색) 일 때와 1.0(빨간색) 일 때를 
+  왔다갔다 한다고 보면 되겠군.
+
+  abs(), sin() 모두 glsl의 자체 내장함수라고 보면 됨.
+  GLSL의 자체 내장함수 및 변수를 찾아보고 싶다면
+  https://thebookofshaders.com/glossary/ 에 정리되어 있으니 참고할 것.
+  여기에 적힌 내장함수들을 잘 조합해서 앞으로 셰이더 코딩을 해나가야 함.
+
+  근데 이름 딱 봐도 js에서 사용하는 Math API랑 동일한 기능을 하겠지?
+
+  즉, sin() 함수는
+  -1과 1 사이를 왔다갔다 하는 사인 곡선을 그려주는 사인 함수임.
+  즉, 시간이 흐름에 따라 증가하는 u_time값을 인자로 받아서 그 값의 sine값을
+  -1 ~ 1 사이의 값을 반복주기를 가지며 리턴해줌.
+
+  abs() 함수는
+  이 sin() 함수의 리턴값인 -1 ~ 1 을 절댓값으로 바꿔주는 값임.
+  즉, 음수인 사인값도 모두 양수로 바꿔주니까,
+  저렇게 하면 0 ~ 1 사이의 값이 반복주기를 가지며 리턴되겠지. 
+
+  그래서 r값이 0.0과 1.0 사이의 r값을 오가면서
+  색상이 바뀌는 애니메이션이 구현되는 거라고 보면 됨.
 */
